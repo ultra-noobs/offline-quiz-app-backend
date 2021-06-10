@@ -29,4 +29,26 @@ router.get("/checkAuth",async(req,res)=>{
   }
 })
 
+router.put("/addStudent",async(req,res)=>{
+  const {token,batch,name,phone,id} = req.body;
+  try {
+    const docRef = await db.collection('users').doc(token).collection('batch').doc(batch);
+    const doc = await docRef.get();
+    if(!doc.exists){
+      res.status(404).send({errorMessage:"Link is Broken, Please Recheck The Link."})
+    }else{
+        await docRef.update({
+          students:firebase.firestore.FieldValue.arrayUnion({
+            name,phone,id
+          })
+        })
+        console.log("Successfully student added");
+        res.send({success:true})
+    }
+  } catch (error) {
+      console.log(error.message);
+      res.status(501).send({errorMessage:"Server Error"});
+  }
+})
+
 module.exports = router;
