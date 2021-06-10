@@ -10,6 +10,7 @@ var indexRouter = require('./routes/index');
 var loginRouter = require('./routes/LoginRouter');
 var registerRouter = require('./routes/RegisterRouter')
 var dashboardRoute = require('./routes/dashboardRouter')
+const profileRoute = require("./routes/profile")
 const cors = require("cors");
 
 var app = express();
@@ -34,11 +35,12 @@ app.use('/', indexRouter);
 app.use('/login', loginRouter);
 app.use('/register', registerRouter);
 app.use('/dashboard/',dashboardRoute);
+app.use("/profile",profileRoute)
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
-});
+// app.use(function(req, res, next) {
+//   next(createError(404));
+// });
 
 // error handler
 // app.use(function(err, req, res, next) {
