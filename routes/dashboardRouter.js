@@ -22,7 +22,8 @@ router.post("/saveQuiz",authRequired,(req,res)=> {
     var quizes = [];
     quizDocRef.collection("quiz").get().then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
-            quizes.push(doc.data());
+            quizes.push({id:doc.id, data: doc.data() });
+            console.log(doc.id);
         });
         res.send(quizes);
     }); 
