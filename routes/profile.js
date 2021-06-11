@@ -64,4 +64,19 @@ router.post("/setbatch", authRequired, (req, res) => {
     }
 })
 
+.get('/batch/:batchid', authRequired, (req, res) => {
+    const batchid = req.params;
+    const token = req.token;
+    console.log(token);
+    const batchDocRef = db.collection('users').doc(token)
+
+    // batchDocRef.collection("batch").doc(batchid).get().then((querySnapshot) => {
+    //     console.log(querySnapshot.data());
+    //     res.send(querySnapshot.data());
+    // }); 
+    batchDocRef.collection('batch').get().then((doc) => {
+        console.log(doc.data());
+    })
+});
+
 module.exports = router;
