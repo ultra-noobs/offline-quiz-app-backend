@@ -64,4 +64,25 @@ router.post("/setbatch", authRequired, (req, res) => {
     }
 })
 
+router.get("/getBatch",authRequired,(req,res)=>{
+    const token = req.token;
+    const finalResult = [];
+    try {
+        db.collection("users").doc(token).collection("batch").get().then((querySnapshot)=>{
+            querySnapshot.forEach((doc) => {
+                const batchName = doc.data().name;
+                const link = `http://localhost:3000/formRegister/${token}/${batchName}`;
+                const size = doc.data().students.length;
+                finalResult.push({
+                    link,batchName,size
+                });
+            });
+            res.send({batch:finalResult});
+        })
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).send({error:error.message});
+    }
+})
+
 module.exports = router;
