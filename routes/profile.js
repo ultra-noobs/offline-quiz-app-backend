@@ -14,6 +14,7 @@ router.get("/", authRequired, (req, res) => {
             res.send(doc.data());
         } else {
             // doc.data() will be undefined in this case
+            // this should not be the case if user already registered
             res.status(401).send("User Not Found");
         }
     }).catch((error) => {
