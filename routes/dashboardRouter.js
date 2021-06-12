@@ -8,9 +8,10 @@ const { questionFilter } = require('../utils/questionFilter')
 
 router.post("/saveQuiz",authRequired,(req,res)=> {
     const data = req.body.finalQnA;
-    const { time, date, title } = req.body;
+    const { time, date, title, batch } = req.body;
+    console.log(batch);
     const finalQuizArray = questionFilter(data);
-    db.collection('users').doc(req.token).collection("quiz").add( { time, date, title, finalQuizArray});
+    db.collection('users').doc(req.token).collection("quiz").add( { time, date, title, batch, finalQuizArray});
     console.log("Quiz Successfully Created");
     res.send("Quiz Successfully Created")
 })
@@ -35,7 +36,17 @@ router.post("/saveQuiz",authRequired,(req,res)=> {
     quizDocRef.collection('quiz').doc(req.params.id).get().then((querySnapshot) => {
         res.send(querySnapshot.data());
     });
-});
+})
+
+.get('/quizbatches', authRequired, async (req, res) => {
+    const quizDocRef = db.collection('users').doc(req.token).collection('batch');
+    let batches = [];
+    await quizDocRef.get().then((querySnapshot) => {
+       querySnapshot.forEach((doc, index) => batches.push({value: doc.data().name ,  text: doc.data().name }));
+    })
+    console.log(batches);
+    res.send(batches);
+})
 
 router.get('/:id',authRequired,(req,res)=>{
     const id = req.params.id;

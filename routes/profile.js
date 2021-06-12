@@ -64,6 +64,20 @@ router.post("/setbatch", authRequired, (req, res) => {
     }
 })
 
+.get('/batch/:batchid', authRequired, (req, res) => {
+    const batchid = req.params;
+    const token = req.token;
+    console.log(token);
+    let studentsInfo = [];
+        db.collection('users').doc(token).collection('batch').get().then((querySnapshot) => {
+        querySnapshot.forEach((doc) =>{
+            studentsInfo.push(doc.data());
+        })
+        let response = studentsInfo.filter(element => element.name === batchid.batchid);
+        res.send(response);
+    })
+});
+
 router.get("/getBatch",authRequired,(req,res)=>{
     const token = req.token;
     const finalResult = [];
