@@ -33,9 +33,14 @@ router.post("/saveQuiz",authRequired,(req,res)=> {
     const quizDocRef = db.collection('users').doc(req.token);
     var quiz = {};
     quizDocRef.collection('quiz').doc(req.params.id).get().then((querySnapshot) => {
-        console.log(querySnapshot.data());
         res.send(querySnapshot.data());
     });
 });
+
+router.get('/:id',authRequired,(req,res)=>{
+    const id = req.params.id;
+    const token = req.token;
+    
+})
 
 module.exports = router;
