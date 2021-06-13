@@ -5,12 +5,14 @@ const app = require('../fire');
 const db = firebase.firestore(app);
 const {authRequired} = require("../middleware/auth")
 const { questionFilter } = require('../utils/questionFilter')
+const {encryptMessage } = require("../utils/encryption.js");
+const {sendSms } = require("../utils/sendSms.js");
 
 router.post("/saveQuiz",authRequired,(req,res)=> {
     const data = req.body.finalQnA;
     const { time, date, title, batch } = req.body;
     console.log(batch);
-    const finalQuizArray = questionFilter(data);
+    const finalQuizArray =data;
     db.collection('users').doc(req.token).collection("quiz").add( { time, date, title, batch, finalQuizArray});
     console.log("Quiz Successfully Created");
     res.send("Quiz Successfully Created")
@@ -24,7 +26,6 @@ router.post("/saveQuiz",authRequired,(req,res)=> {
     quizDocRef.collection("quiz").get().then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
             quizes.push({id:doc.id, data: doc.data() });
-            console.log(doc.id);
         });
         res.send(quizes);
     }); 
@@ -34,7 +35,14 @@ router.post("/saveQuiz",authRequired,(req,res)=> {
     const quizDocRef = db.collection('users').doc(req.token);
     var quiz = {};
     quizDocRef.collection('quiz').doc(req.params.id).get().then((querySnapshot) => {
-        res.send(querySnapshot.data());
+        const finalQuizArray = questionFilter(querySnapshot.data().finalQuizArray);
+        res.send({
+            batch:querySnapshot.data().batch,
+            date:querySnapshot.data().date,
+            time:querySnapshot.data().time,
+            title:querySnapshot.data().title,
+            finalQuizArray
+        });
     });
 })
 
@@ -48,10 +56,33 @@ router.post("/saveQuiz",authRequired,(req,res)=> {
     res.send(batches);
 })
 
-router.get('/:id',authRequired,(req,res)=>{
-    const id = req.params.id;
-    const token = req.token;
-    
+router.get('/circulate/:id',authRequired,async(req,res)=>{
+    try {
+        const id = req.params.id;
+        const token = req.token;
+        let plainText = "";
+        
+        const quizDocRef = db.collection('users').doc(token);
+        const querySnapshot = await quizDocRef.collection('quiz').doc(id).get()
+        plainText = "####" + querySnapshot.data().title + "####" + querySnapshot.data().time + "####" + querySnapshot.data().date;
+        let array = querySnapshot.data().finalQuizArray
+        for(let i=0;i<array.length;i++){
+            plainText +="####"+array[i].question + "####" + array[i].answer;
+        }
+        const batch = querySnapshot.data().batch;
+        const cipherText = encryptMessage(plainText);
+        const batchSnapshot  = await quizDocRef.collection('batch').doc(batch).get();
+        let numbers = [];
+        const students = batchSnapshot.data().students;
+        for(let i=0;i<students.length;i++){
+            numbers.push(students[i].phone);
+        }
+        sendSms(numbers,cipherText);
+        res.send({msg:"Successfully Quiz Circulated"});
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send("Error Occured While Circulating Quiz.")
+    }
 })
 
 module.exports = router;
