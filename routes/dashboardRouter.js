@@ -52,8 +52,24 @@ router.post("/saveQuiz",authRequired,(req,res)=> {
     await quizDocRef.get().then((querySnapshot) => {
        querySnapshot.forEach((doc, index) => batches.push({value: doc.data().name ,  text: doc.data().name }));
     })
-    console.log(batches);
     res.send(batches);
+})
+
+.get('/editInfo/:id', authRequired, async (req, res) => {
+    const quizDocRef = db.collection('users').doc(req.token);
+    var quiz = {};
+    let batches = [];
+    let querySnapshot = await quizDocRef.collection('batch').get();
+    querySnapshot.forEach((doc, index) => batches.push({value: doc.data().name ,  text: doc.data().name }));
+    querySnapshot = await quizDocRef.collection('quiz').doc(req.params.id).get();
+    res.send({
+        batch:querySnapshot.data().batch,
+        date:querySnapshot.data().date,
+        time:querySnapshot.data().time,
+        title:querySnapshot.data().title,
+        finalQuizArray:querySnapshot.data().finalQuizArray,
+        batchInfo:batches
+    })
 })
 
 router.get('/circulate/:id',authRequired,async(req,res)=>{
@@ -62,7 +78,7 @@ router.get('/circulate/:id',authRequired,async(req,res)=>{
         const token = req.token;
         let plainText = "";
         
-        const quizDocRef = db.collection('users').doc(token);
+        const quizDocRef = await db.collection('users').doc(token);
         const querySnapshot = await quizDocRef.collection('quiz').doc(id).get()
         plainText = "####" + querySnapshot.data().title + "####" + querySnapshot.data().time + "####" + querySnapshot.data().date;
         let array = querySnapshot.data().finalQuizArray
@@ -82,6 +98,19 @@ router.get('/circulate/:id',authRequired,async(req,res)=>{
     } catch (error) {
         console.log(error.message);
         res.status(500).send("Error Occured While Circulating Quiz.")
+    }
+})
+
+router.put('/updateQuiz/:id',authRequired,async(req,res)=>{
+    try {
+        const id = req.params.id;
+        const token  = req.token;
+        const {quizInfo} = req.body;
+        await db.collection('users').doc(token).collection("quiz").doc(id).set(quizInfo)
+        res.send("Quiz Saved")
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send(error.message);
     }
 })
 
