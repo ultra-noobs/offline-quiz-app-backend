@@ -11,10 +11,12 @@ const {sendSms } = require("../utils/sendSms.js");
 router.post("/saveQuiz",authRequired,(req,res)=> {
     const data = req.body.finalQnA;
     const { time, date, title, batch } = req.body;
+    console.log(req.body);
     let isCirculated = false;
     console.log(batch);
     const finalQuizArray =data;
-    db.collection('users').doc(req.token).collection("quiz").add( { time, date, title, batch, finalQuizArray, isCirculated});
+    db.collection('users').doc(req.token).collection("quiz").add( { time, date, title, batch, finalQuizArray, isCirculated})
+    .then((doc) => console.log(doc.data()));
     console.log("Quiz Successfully Created");
     res.send("Quiz Successfully Created")
 })
