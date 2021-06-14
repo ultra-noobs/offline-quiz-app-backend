@@ -76,7 +76,15 @@ router.post("/setbatch", authRequired, (req, res) => {
         let response = studentsInfo.filter(element => element.name === batchid.batchid);
         res.send(response);
     })
-});
+})
+
+.get('/batch/delete/:id', authRequired, (req, res) => {
+    db.collection('users').doc(req.token).collection('batch').doc(req.params.id).delete()
+    .then(() => {
+        res.send("deleted")
+        console.log("dleted");
+    })
+})
 
 router.get("/getBatch",authRequired,(req,res)=>{
     const token = req.token;

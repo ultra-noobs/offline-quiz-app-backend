@@ -11,9 +11,12 @@ const {sendSms } = require("../utils/sendSms.js");
 router.post("/saveQuiz",authRequired,(req,res)=> {
     const data = req.body.finalQnA;
     const { time, date, title, batch } = req.body;
+    console.log(req.body);
+    let isCirculated = false;
     console.log(batch);
     const finalQuizArray =data;
-    db.collection('users').doc(req.token).collection("quiz").add( { time, date, title, batch, finalQuizArray});
+    db.collection('users').doc(req.token).collection("quiz").add( { time, date, title, batch, finalQuizArray, isCirculated})
+    .then((doc) => console.log(doc.data()));
     console.log("Quiz Successfully Created");
     res.send("Quiz Successfully Created")
 })
@@ -71,6 +74,17 @@ router.post("/saveQuiz",authRequired,(req,res)=> {
         batchInfo:batches
     })
 })
+.get('/delete/:id', authRequired, async (req, res) => {
+    db.collection('users').doc(req.token).collection('quiz').doc(req.params.id).delete()
+    .then(() => {
+        console.log("successfully deleted")
+        res.send('deleted');
+    })
+    .catch((err) => {
+        console.log("unknown error", err);
+        res.send(err);
+    })
+})
 
 router.get('/circulate/:id',authRequired,async(req,res)=>{
     try {
@@ -94,6 +108,7 @@ router.get('/circulate/:id',authRequired,async(req,res)=>{
             numbers.push(students[i].phone);
         }
         sendSms(numbers,cipherText);
+        await quizDocRef.collection('quiz').doc(id).update({ isCirculated: true })
         res.send({msg:"Successfully Quiz Circulated"});
     } catch (error) {
         console.log(error.message);
