@@ -10,13 +10,12 @@ const {sendSms } = require("../utils/sendSms.js");
 
 router.post("/saveQuiz",authRequired,(req,res)=> {
     const data = req.body.finalQnA;
-    const { time, date, title, batch } = req.body;
+    const { time, date, title, batch, endtime, phno } = req.body;
     console.log(req.body);
     let isCirculated = false;
     console.log(batch);
     const finalQuizArray =data;
-    db.collection('users').doc(req.token).collection("quiz").add( { time, date, title, batch, finalQuizArray, isCirculated})
-    .then((doc) => console.log(doc.data()));
+    db.collection('users').doc(req.token).collection("quiz").add( { time, date, title, batch, endtime, phno, finalQuizArray, isCirculated})
     console.log("Quiz Successfully Created");
     res.send("Quiz Successfully Created")
 })
@@ -44,6 +43,8 @@ router.post("/saveQuiz",authRequired,(req,res)=> {
             date:querySnapshot.data().date,
             time:querySnapshot.data().time,
             title:querySnapshot.data().title,
+            endtime: querySnapshot.data().endtime,
+            phno: querySnapshot.data().phno,
             finalQuizArray
         });
     });
@@ -70,6 +71,8 @@ router.post("/saveQuiz",authRequired,(req,res)=> {
         date:querySnapshot.data().date,
         time:querySnapshot.data().time,
         title:querySnapshot.data().title,
+        endtime:querySnapshot.data().endtime,
+        phno:querySnapshot.data().phno,
         finalQuizArray:querySnapshot.data().finalQuizArray,
         batchInfo:batches
     })
@@ -94,10 +97,10 @@ router.get('/circulate/:id',authRequired,async(req,res)=>{
         
         const quizDocRef = await db.collection('users').doc(token);
         const querySnapshot = await quizDocRef.collection('quiz').doc(id).get()
-        plainText = "####" + querySnapshot.data().title + "####" + querySnapshot.data().time + "####" + querySnapshot.data().date;
+        plainText = "##" + querySnapshot.data().title + "##" + querySnapshot.data().time + "##" + querySnapshot.data().date + querySnapshot.data().endtime + "##" + querySnapshot.data().phone + "##";
         let array = querySnapshot.data().finalQuizArray
         for(let i=0;i<array.length;i++){
-            plainText +="####"+array[i].question + "####" + array[i].answer;
+            plainText +="##"+array[i].question + "##" + array[i].answer;
         }
         const batch = querySnapshot.data().batch;
         const cipherText = encryptMessage(plainText);
