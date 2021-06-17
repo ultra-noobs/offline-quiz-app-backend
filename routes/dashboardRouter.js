@@ -97,7 +97,7 @@ router.get('/circulate/:id',authRequired,async(req,res)=>{
         
         const quizDocRef = await db.collection('users').doc(token);
         const querySnapshot = await quizDocRef.collection('quiz').doc(id).get()
-        plainText = "##" + querySnapshot.data().title + "##" + querySnapshot.data().time + "##" + querySnapshot.data().date + querySnapshot.data().endtime + "##" + querySnapshot.data().phone + "##";
+        plainText = "##" + querySnapshot.data().title + "##" + querySnapshot.data().time + "##" + querySnapshot.data().date + "##" + querySnapshot.data().endtime + "##" + querySnapshot.data().phno + "##";
         let array = querySnapshot.data().finalQuizArray
         for(let i=0;i<array.length;i++){
             plainText +="##"+array[i].question + "##" + array[i].answer;
