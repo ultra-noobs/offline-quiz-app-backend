@@ -146,8 +146,6 @@ router.get("/circulate/:id", authRequired, async (req, res) => {
       querySnapshot.data().endtime +
       "##" +
       querySnapshot.data().phno +
-      "##" + 
-      querySnapshot.data().quizId +
       "##";
     let array = querySnapshot.data().finalQuizArray;
     for (let i = 0; i < array.length; i++) {
