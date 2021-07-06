@@ -14,17 +14,12 @@ const getToken = (id) => {
 };
 
 router
-  .get("/", function (req, res, next) {
-    // console.log(req.body);
-  })
-
   .post("/", (req, res, next) => {
     const { email, password, name, institution } = req.body;
     firebase
       .auth()
       .createUserWithEmailAndPassword(email, password)
       .then((userCredential) => {
-        // Signed in
         var uid = userCredential.user.uid;
         const token = getToken(uid);
         db.collection("users")

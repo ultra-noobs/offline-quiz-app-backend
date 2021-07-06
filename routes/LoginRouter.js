@@ -24,7 +24,6 @@ router
       .auth()
       .signInWithEmailAndPassword(email, password)
       .then((userCredential) => {
-        // Signed in
         var uid = userCredential.user.uid;
         const token = getToken(uid);
         res.status(200).send({ token });

@@ -17,20 +17,17 @@ router
     let isCirculated = false;
     console.log(batch);
     const finalQuizArray = data;
-    db.collection("users")
-      .doc(req.token)
-      .collection("quiz")
-      .add({
-        time,
-        date,
-        title,
-        batch,
-        endtime,
-        phno,
-        finalQuizArray,
-        isCirculated,
-        quizId
-      });
+    db.collection("users").doc(req.token).collection("quiz").add({
+      time,
+      date,
+      title,
+      batch,
+      endtime,
+      phno,
+      finalQuizArray,
+      isCirculated,
+      quizId,
+    });
     console.log("Quiz Successfully Created");
     res.send("Quiz Successfully Created");
   })
@@ -58,7 +55,7 @@ router
       .doc(req.params.id)
       .get()
       .then((querySnapshot) => {
-          console.log(querySnapshot.data());
+        console.log(querySnapshot.data());
         const finalQuizArray = questionFilter(
           querySnapshot.data().finalQuizArray
         );
@@ -90,7 +87,6 @@ router
 
   .get("/editInfo/:id", authRequired, async (req, res) => {
     const quizDocRef = db.collection("users").doc(req.token);
-    var quiz = {};
     let batches = [];
     let querySnapshot = await quizDocRef.collection("batch").get();
     querySnapshot.forEach((doc, index) =>
